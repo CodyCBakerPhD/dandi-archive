@@ -54,9 +54,9 @@ Another proposed option (by Chris Hill at MIT) is to leverage more of a distribu
 
 ## General Considerations
 
-- **Geographical sources of data loss**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would necessarily place the backup bucket within the same AWS region, and therefore any geographical source, such as catastrophic destruction of physical data centers (as from natural events or otherwise).
-- **Diversification of service providers**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would deepen the vendor lock-in, which increases our vulnerability to provider-based supply chain attacks, including denial of central AWS services by the provider(s). Having more institutionally-backed options offers greater protection through diversification of the underlying services used.
-- **Sustainability**: Virtually every non-AWS solution must be 'refreshed' over time. Tape must be re-copied every 8 years or so. All physical disks on servers must be replaced every 5 years to stay within warranty (required or recommended by maintenance staff). There is effectively no permanent solution aside from AWS (which presumably manages such things ephemerally) or the distributed approach (which requires continued active participation by the community).
+**Geographical sources of data loss**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would necessarily place the backup bucket within the same AWS region, and therefore any geographical source, such as catastrophic destruction of physical data centers (as from natural events or otherwise).
+**Diversification of service providers**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would deepen the vendor lock-in, which increases our vulnerability to provider-based supply chain attacks, including denial of central AWS services by the provider(s). Having more institutionally-backed options offers greater protection through diversification of the underlying services used.
+**Sustainability**: Virtually every non-AWS solution must be 'refreshed' over time. Tape must be re-copied every 8 years or so. All physical disks on servers must be replaced every 5 years to stay within warranty (required or recommended by maintenance staff). There is effectively no permanent solution aside from AWS (which presumably manages such things ephemerally) or the distributed approach (which requires continued active participation by the community). As such, all cost estimates are expressed in units of time (per year), but this can clearly only be supported for as long as there is sustained, designated funding within the budget for data backup purposes.
 
 
 
@@ -148,6 +148,7 @@ Any solutions not listed here have no known limitations, though this is likely b
 | Granite (Internal)[^1] | $15.62 |
 | Granite (External) | $24.78 |
 | OSN | $12.85 |
+| ORCD | $14.53 |
 
 [^1]: Access to internal Granite pricing would require a 'liason' at Illinois.
 
@@ -176,14 +177,21 @@ $$
 The pricing for NESE is based on the number of tapes desired for redundancy. It also consists of the initial tape purchase as well as required maintenance.
 
 
-
-
 ### OSN
   
-OSN offers 1.4 PB for $90,000, renewing on a five-year hardware warranty.
+OSN offers 1.4 PB for $90,000, renewing on a five-year hardware warranty. Amortizing gives:
 
 $$
-\frac{$90,000}{1.4 \rm{PB} \cdot 5 \rm{year}} = \frac{$90,000}{1,400 \rm{TB} \cdot 5 \rm{year}} = $12.85/\rm{TB}/\rm{year}
+\frac{$90,000}{1.4 \rm{PB} \cdot 5 \rm{year}} = \frac{$90,000}{1.4 \rm{PB} \cdot 5 \rm{year}} \cdot \frac{1 \rm{PB}}{1,000 \rm{TB}} = $12.85/\rm{TB}/\rm{year}
+$$
+
+
+## ORCD
+
+ORCD has quoted $90,000 for 1.1 PiB (usable; with RAID-Z3 reserved space), renewing on a five-year hardware warranty. Amortizing gives:
+
+$$
+\frac{$90,000}{1.1 \rm{PiB} \cdot 5 \rm{year}} = \frac{$90,000}{1.1 \rm{PiB} \cdot 5 \rm{year}}\cdot \frac{1 \rm{PiB}}{1.1259 \rm{PB}} \cdot \frac{1 \rm{PB}}{1,000 \rm{TB}} = $14.53/\rm{TB}/\rm{year}
 $$
 
 
