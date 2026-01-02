@@ -1,9 +1,6 @@
 # S3 Backup (All Options)
 
-## Terms used
-
-- **Primary bucket**: The sponsored bucket that is currently used for storing DANDI data. Located in us-east-2.
-- **Backup bucket**: The separate bucket that stores the same data as the primary bucket, but with the Glacier Deep Archive storage class. Located in us-east-2. Does not exist yet as of this writing.
+This document expands upon the [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) to include all other known alternative options with their advantages, limitations, and costs for an easy high-level comparison.
 
 
 
@@ -14,8 +11,6 @@ The DANDI Archive hosts critical neuroscience data that represents substantial t
 While the [S3 Trailing Delete](./s3-trailing-delete.md) design protects against application-level bugs and accidental deletions within the primary bucket, it does not protect against larger-scale threats; for example, data corruption that propagates through the trailing delete rule before being detected, severe bugs in systems like garbage collection, or other unforeseen ways data might be corrupted, deleted, or otherwise lost.
 
 A backup system provides an additional layer of data protection by maintaining a copy of the data in the primary bucket, along with a record of all ongoing changes to that data. The backup bucket will thus behave much like the tape archival systems of old, enabling administrators to "rewind" to find data in the backup bucket as it was at a given point in history.
-
-This document expands upon the [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) to include all other known alternative options with their advantages and drawbacks.
 
 
 
@@ -55,7 +50,9 @@ Another proposed option (by Chris Hill at MIT) is to leverage more of a distribu
 ## General Considerations
 
 **Geographical sources of data loss**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would necessarily place the backup bucket within the same AWS region, and therefore any geographical source, such as catastrophic destruction of physical data centers (as from natural events or otherwise).
+
 **Diversification of service providers**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would deepen the vendor lock-in, which increases our vulnerability to provider-based supply chain attacks, including denial of central AWS services by the provider(s). Having more institutionally-backed options offers greater protection through diversification of the underlying services used.
+
 **Sustainability**: Virtually every non-AWS solution must be 'refreshed' over time. Tape must be re-copied every 8 years or so. All physical disks on servers must be replaced every 5 years to stay within warranty (required or recommended by maintenance staff). There is effectively no permanent solution aside from AWS (which presumably manages such things ephemerally) or the distributed approach (which requires continued active participation by the community). As such, all cost estimates are expressed in units of time (per year), but this can clearly only be supported for as long as there is sustained, designated funding within the budget for data backup purposes.
 
 
@@ -162,13 +159,13 @@ AWS pricing is very piece-meal depending on what specific actions we need.
 The basic storage has the advertised price of $0.00099/GB/month. Rescaling gives:
 
 $$
-\frac{$0.00099}{\rm{GB} \cdot \rm{month}} = \frac{$0.00099}{1 \rm{GB} \ 1 \rm{month}} \cdot \frac{1,000 \rm{GB}}{1 \rm{TB}} \cdot \frac{12 \rm{month}}{1 \rm{year}} = $11.88/\rm{TB}/\rm{year}
+\frac{$0.00099}{\rm{GB} \cdot \rm{month}} = \frac{$0.00099}{1 \ \rm{GB} \ 1 \ \rm{month}} \cdot \frac{1,000 \ \rm{GB}}{1 \ \rm{TB}} \cdot \frac{12 \ \rm{month}}{1 \ \rm{year}} = $11.88/\rm{TB}/\rm{year}
 $$
 
 The cost of full restoration is estimated to be about $2,500/PB, though this is largely guesswork. Amortizing this at a rate of once per year gives:
 
 $$
-\frac{$2,500}{\rm{PB} \cdot \rm{year}} = \frac{$2,500}{\rm{PB} \cdot \rm{year}} \cdot \frac{1 \rm{PB}}{1,000 \rm{TB}} = $2.5/\rm{TB}/\rm{year}
+\frac{$2,500}{\rm{PB} \cdot \rm{year}} = \frac{$2,500}{\rm{PB} \cdot \rm{year}} \cdot \frac{1 \ \rm{PB}}{1,000 \ \rm{TB}} = $2.5/\rm{TB}/\rm{year}
 $$
 
 
@@ -182,7 +179,7 @@ The pricing for NESE is based on the number of tapes desired for redundancy. It 
 OSN offers 1.4 PB for $90,000, renewing on a five-year hardware warranty. Amortizing gives:
 
 $$
-\frac{$90,000}{1.4 \rm{PB} \cdot 5 \rm{year}} = \frac{$90,000}{1.4 \rm{PB} \cdot 5 \rm{year}} \cdot \frac{1 \rm{PB}}{1,000 \rm{TB}} = $12.85/\rm{TB}/\rm{year}
+\frac{$90,000}{1.4 \ \rm{PB} \cdot 5 \ \rm{year}} = \frac{$90,000}{1.4 \ \rm{PB} \cdot 5 \ \rm{year}} \cdot \frac{1 \ \rm{PB}}{1,000 \ \rm{TB}} = $12.85/\rm{TB}/\rm{year}
 $$
 
 
@@ -191,7 +188,7 @@ $$
 ORCD has quoted $90,000 for 1.1 PiB (usable; with RAID-Z3 reserved space), renewing on a five-year hardware warranty. Amortizing gives:
 
 $$
-\frac{$90,000}{1.1 \rm{PiB} \cdot 5 \rm{year}} = \frac{$90,000}{1.1 \rm{PiB} \cdot 5 \rm{year}}\cdot \frac{1 \rm{PiB}}{1.1259 \rm{PB}} \cdot \frac{1 \rm{PB}}{1,000 \rm{TB}} = $14.53/\rm{TB}/\rm{year}
+\frac{$90,000}{1.1 \ \rm{PiB} \cdot 5 \ \rm{year}} = \frac{$90,000}{1.1 \ \rm{PiB} \cdot 5 \ \rm{year}}\cdot \frac{1 \ \rm{PiB}}{1.1259 \ \rm{PB}} \cdot \frac{1 \ \rm{PB}}{1,000 \ \rm{TB}} = $14.53/\rm{TB}/\rm{year}
 $$
 
 
@@ -209,7 +206,7 @@ The following table shows the initial, final, intermediate, and cumulative costs
 | Deep Glacier<br>+<br>Full Restore | $14,380 / year | $35,950 / year | $50,330 / year | $64,710 / year | $79,090 / year | $93,470 / year  | max: $372,650 |
 | Granite (Internal) | $15,620 / year |	$39,050 / year | $54,670 / year | $70,290 / year | $85,910 / year | $101,530 / year | $367,070 |
 | Granite (External) | $24,780 / year |	$61,950 / year | $86,730 / year | $111,510 / year | $136,290 / year | $161,070 / year | $582,330 |
-| OSN | $64,285.71 (% used of $90,000) |
-| ORCD Expansion | ? | ? | ?
+| OSN | $12,850/ year |	$32,125 / year | $44975 / year | $57,825 / year | $70,675 / year | $83,525 / year | $301,975 |
+| ORCD | $14,530 / year |	$36,325 / year | $50,855 / year | $65385 / year | $79,915 / year | $94,445 / year | $341,455 |
 
 [^2]: LINC is expected to make a one-time contribution of 0.5 PB.
