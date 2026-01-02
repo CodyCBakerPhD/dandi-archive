@@ -150,6 +150,7 @@ Any solutions not listed here have no known limitations, though this is likely b
 [^1]: Access to internal Granite pricing would require a 'liason' at Illinois.
 
 
+
 ## Cost Details
 
 ### Deep Glacier
@@ -183,7 +184,7 @@ $$
 $$
 
 
-## ORCD
+### ORCD
 
 ORCD has quoted $90,000 for 1.1 PiB (usable; with RAID-Z3 reserved space), renewing on a five-year hardware warranty. Amortizing gives:
 
