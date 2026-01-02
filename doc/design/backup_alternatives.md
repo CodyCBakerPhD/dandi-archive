@@ -44,11 +44,6 @@ This document expands upon the [Deep Glacier design](https://github.com/dandi/da
 **Distributed**: Another proposed option (by Chris Hill at MIT) is to leverage more of a distributed/peer-to-peer system to crowdsource this problem.
   - **[Bacula](https://en.wikipedia.org/wiki/Bacula)**: This is an open-source, enterprise-level computer backup system for heterogeneous networks. It is designed to automate backup tasks that had often required intervention from a systems administrator or computer operator. Note that it is merely software for managing the distribution, and the hardware would be wherever we have friends who have disk space to contribute.
 
-NESE Tape provides higher density, lower cost storage, currently accessible via Globus. NESE Tape is composed of a tape system with several storage frames and 34 tape drives supporting up to 70 PB today with space available for expansion as needed.
-
-Each NESE Tape allocation comes with a disk-based staging area that is available via Globus. Users write to the staging area and then the data is migrated to tape based on a storage lifecycle policy. The default quota on this area is 10 TB or 2% of tape capacity, whichever is larger. There is also a minimum temporary hard quota set to 4 x staging-area space to allow for short term movement of larger amounts of data.
-
-
 
 ## How They Work
 
@@ -77,30 +72,80 @@ Like NESE, Globus would be used to transfer the objects from the S3 bucket to th
 
 These would all act essentially the same as a remote server or general HPC. All file management would be performed by internally controlled code and run on CRON.
 
-- all newly written files > 2 hr of modification time are copied to tape.
-- if fileset quota > 99%; files are stubbed (replaced with a small pointer) down to 75% quota.
-- files with access time age > 2 weeks are stubbed.
-- files < 100 MB copied to tape, but also remain on disk.
 
 
-
-## Limitations and Considerations
+## General Considerations
 
 - **Geographical sources of data loss**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would necessarily place the backup bucket within the same AWS region, and therefore any geographical source, such as catastrophic destruction of physical data centers (as from natural events or otherwise).
 - **Diversification of service providers**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would deepen the vendor lock-in, which increases our vulnerability to provider-based supply chain attacks, including denial of central AWS services by the provider(s). Having more institutionally-backed options offers greater protection through diversification of the underlying services used.
-- **Upper bound on total storage**: No quota for an upper limit of long-term storage has yet been provided, aside from the grand 70 PB total of the entire NESE store and 300 PB for Granite; the providers claim expansion is possible as need arises.
+- **Upper bound on total storage**: The tape-based  
 - **Maximum file size**: NESE tape services do place a maximum file size limitation of 1 TiB; though no single file on DANDI would violate this (some might come close though). Granite requests an average file size of 100MB, but it is unclear how strong this requirement is (we also haven't computed what DANDI's average is).
 - **Replication is eventually consistent**: No guarantees about replication speed (the time between an object finishing upload into the primary bucket and when it is available in the backup bucket) are provided. Using previous bandwidth experience to the old Dropbox backup, multi-gigabit speeds should be possible and is expected to keep up with ingest rates on the primary S3 bucket.
 
 
 
-## Cost
+## Specific Advantages and Limitations
 
-Note that unlike the [Deep Glacier approach](https://github.com/dandi/dandi-archive/blob/b3e0a9df4188533723fb2ad4a95506aa724fc089/doc/design/s3-backup.md), no egress cost would be induced from the data transfer as all operations are strictly under the open data bucket.
+Any solutions not listed here have no known limitations, though this is likely because exact public details of the underlying mechanisms are absent.
 
-Also note that current cost estimates are rough quotes provided verbatim from discussions between @yarikoptic and the Dartmouth IT team and are subject to change when/if this path solidifies.
+### Deep Glacier
 
-**Below are the additional costs introduced by this backup feature** for a 1 PB primary bucket.
+**Advantages**:
+  - Speed of data transfer is expected to be orders of magnitude faster than any other solution.
+
+**Limitations**:
+  - Some minor engineering effort should still be undertaken to ensure there is a known process for using the service to perform targeted restorations of objects from the bucket.
+
+
+### Tape (NESE/Granite)
+
+**Advantages**:
+  - Among the non-AWS solutions, tape has a very high upper bound on total storage size; essentially, as much as we are willing to pay for, they can provide. This reaches into the hundreds of PB.
+  - Tape has the lowest overall cost, and NESE has the lowest cost among tape services.
+
+**Limitations**:
+  - Some engineering effort would be required on our end to monitor the file management process and ensure feasibility. This would certainly be more effort than the Deep Glacier approach.
+  - Throughput speeds are not known but assumed to be slow. A full restoration of the S3 bucket would take time to complete.
+  - NESE has a maximum file size of 1 TiB.
+  - NESE has a maximum number of objects must be less than $\frac{\text{total size}}{100 \text{ MB}}$.
+  - Granite has a ratio of 1 TB to 10,000 inodes.
+
+
+### Servers (OSN/ORCD)
+
+**Advantages**:
+  - Expected to have the highest data transfer speeds among non-AWS solutions. A full restoration would not take very long.
+  - Objects from the S3 bucket would be stored in locations that possess fast disk speeds and various levels of local compute, which could be leveraged for useful purposes.
+
+**Limitations**:
+  - More engineering effort would be required on our end to monitor the file management process and ensure feasibility. This would certainly be more effort than the tape approach.
+  - Significantly more expensive than any other solution.
+  - Storage expansions must be performed in bulk units of multiple PB at a time.
+  - Storage expansions will likely take time to order and install - estimates range from 1-3 months until ready to use.
+
+
+### Distributed System (Bacula)
+
+**Advantages**:
+  - Could theoretically be the safest way of disseminating the data (with multiple redundancies).
+  - Could instill a deeper sense of community by allowing every user the chance to participate in the DANDI infrastructure.
+
+**Limitations**:
+  - This would be a significant engineering endeavor. Probably close to a full year-long project for a single engineer, at least.
+
+
+
+## Cost Summary
+
+| Solution | Cost (TB/year) |
+| :-: | :-: |
+| Deep Glacier | $? |
+| NESE | $4 |
+| Granite (Internal)[^1] | $15.62 |
+| Granite (External) | $24.78 |
+
+[^1]: Access to internal Granite pricing would require a 'liason' at Illinois.
+
 
 **Storage Costs**:
 
@@ -132,7 +177,7 @@ where units are converted for consistency with the [Deep Glacier design](https:/
 
 The DANDI Archive is expecting a ramp-up in data volume of around 1 PB of new data over each of the next five years, culminating in a total nearing 6PB.
 
-The following table shows the initial, final, intermediate, and cumulative costs for both the NESE Tape approach as well as Deep Glacier.
+The following table shows the initial, final, intermediate, and cumulative costs for all backup options. 
 
 | Design | Year 0<br>(1 PB) | Year 1<br>(2.5 PB)[^1] | Year 2<br>(3.5 PB) | Year 3<br>(4.5 PB) | Year 4<br>(5.5 PB) | Year 5<br>(6.5 PB) | Cumulative Total<br>Over All Years|
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
