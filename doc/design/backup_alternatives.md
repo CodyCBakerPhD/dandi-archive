@@ -49,7 +49,7 @@ Another proposed option (by Chris Hill at MIT) is to leverage more of a distribu
 
 ## General Considerations
 
-**Geographical sources of data loss**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would necessarily place the backup bucket within the same AWS region, and therefore any geographical source, such as catastrophic destruction of physical data centers (as from natural events or otherwise).
+**Geographical sources of data loss**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would necessarily place the backup bucket within the same AWS region, and therefore would not protect against any geographical issues, such as catastrophic destruction of physical data centers (as from natural events or otherwise).
 
 **Diversification of service providers**: The AWS approach illustrated in [Deep Glacier design](https://github.com/dandi/dandi-archive/pull/2627) would deepen the vendor lock-in, which increases our vulnerability to provider-based supply chain attacks, including denial of central AWS services by the provider(s). Having more institutionally-backed options offers greater protection through diversification of the underlying services used.
 
