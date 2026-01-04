@@ -70,7 +70,77 @@ A basic analysis of how bulk content is distributed across DANDI is seen through
 <details>
 
 ```python
-# TODO
+import hashlib
+import functools
+import itertools
+import typing
+
+import dandi.dandiapi
+import h5py
+import neuroconv.tools.hdmf
+import remfile
+
+
+def _get_checksum_and_size_of_hdf5_dataset(dataset: h5py.Dataset) -> tuple[str, int]:
+    hasher = hashlib.sha256()
+    for buffer in neuroconv.tools.hdmf.SliceableDataChunkIterator(data=dataset):
+        hasher.update(buffer.data.tobytes())
+    checksum = hasher.hexdigest()
+    size = dataset.nbytes
+
+    return checksum, size
+
+def _get_content_checksum_and_size_of_hdf5(group: h5py.Group, bulk_threshold_bytes: int) -> typing.Iterable[tuple[str, int]]:
+    for name, item in group.items():
+        if isinstance(item, h5py.Dataset):
+            if item.nbytes < bulk_threshold_bytes:
+                continue
+            yield _get_checksum_and_size_of_hdf5_dataset(dataset=item)
+        elif isinstance(item, h5py.Group):
+            yield from _get_content_checksum_and_size_of_hdf5(group=item, bulk_threshold_bytes=bulk_threshold_bytes)
+
+@functools.cache
+def _get_bulk_content_from_url(https_url: str, bulk_threshold_bytes: int) -> dict[str, int]:
+    byte_stream = remfile.File(url=https_url)
+    file = h5py.File(name=byte_stream)
+
+    bulk_content_from_url = {
+        checksum: size
+        for checksum, size in _get_content_checksum_and_size_of_hdf5(
+            group=file, bulk_threshold_bytes=bulk_threshold_bytes
+        )
+    }
+    return bulk_content_from_url
+
+def run(bulk_threshold_gb: float = 50.0) -> None:
+    """
+    A basic analysis of how bulk content is distributed across DANDI.
+
+    Parameters
+    ----------
+    bulk_threshold_gb : float, default: 50.0
+        Threshold for determining whether a given asset counts as 'bulk', in units of GB.
+    """
+    bulk_threshold_bytes = int(bulk_threshold_gb * 1e9)
+
+    client = dandi.dandiapi.DandiAPIClient()
+    dandiset_ids = ["000003"]  # [dandiset.identifier for client.get_dandisets()]
+    bulk_assets = {
+        asset.identifier: asset
+        for dandiset_id in dandiset_ids
+        for version in client.get_dandiset(dandiset_id=dandiset_id).get_versions()
+        for dandiset in [client.get_dandiset(dandiset_id=dandiset_id, version_id=version.identifier)]
+        for asset in dandiset.get_assets()
+        if asset.size > bulk_threshold_bytes
+    }
+
+    asset = next(iter(bulk_assets.values()))
+    https_url = asset.get_content_url(follow_redirects=1, strip_query=True)
+    bulk_content = _get_bulk_content_from_url(https_url=https_url, bulk_threshold_bytes=bulk_threshold_bytes)
+
+if __name__ == "__main__":
+    run()
+
 ```
 
 </details>
