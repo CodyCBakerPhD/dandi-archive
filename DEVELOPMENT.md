@@ -138,8 +138,13 @@ automated: the workflow's token may deploy to an existing Pages site, but creati
 admin rights it does not have. Note that this source deploys the built files directly from the
 workflow; unlike the older branch-based approach, no `gh-pages` branch is created.
 
+This preview lives on the `master-preview` branch, not on `master`: `master` is kept identical to
+`dandi/dandi-archive`, so that contributions upstream can be branched from it without carrying the
+preview commits. `master-preview` is the fork's default branch, which is also what the
+`github-pages` environment requires in order to deploy.
+
 The [`pages.yml`](./.github/workflows/pages.yml) workflow then builds `web/` and deploys it on
-every push to `master`, publishing at `https://<user>.github.io/<repo>/`. Because a Pages site has
+every push to `master-preview`, publishing at `https://<user>.github.io/<repo>/`. Because a Pages site has
 a single deployment, feature branches are not published automatically; to preview one, run the
 workflow from that branch via the Actions tab. The workflow does not run on `dandi/dandi-archive`.
 

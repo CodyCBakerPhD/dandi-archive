@@ -2,7 +2,10 @@ name: Preview frontend on GitHub Pages
 on:
   push:
     branches:
-      - master
+      # The preview lives on this branch rather than master, which is kept
+      # identical to upstream so it can be the base for contributions to
+      # dandi/dandi-archive.
+      - master-preview
   # A Pages site has a single deployment, so branch previews are published on
   # demand rather than on every push: run this workflow from the branch you want
   # to preview via the Actions tab.
