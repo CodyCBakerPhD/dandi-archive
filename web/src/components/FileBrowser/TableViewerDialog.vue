@@ -136,6 +136,7 @@ import axios from 'axios';
 
 import type { AssetPath } from '@/types';
 import { dandiRest } from '@/rest';
+import { useDandisetStore } from '@/stores/dandiset';
 import type { Delimiter } from '@/utils/tabular';
 import { parseDelimitedText, tabularDelimiter } from '@/utils/tabular';
 
@@ -157,6 +158,8 @@ const open = computed({
   set: (value: boolean) => emit('update:modelValue', value),
 });
 
+const store = useDandisetStore();
+
 const loading = ref(false);
 const error: Ref<string | null> = ref(null);
 const rows: Ref<string[][]> = ref([]);
@@ -172,6 +175,16 @@ const inlineUri = computed(() => (
 const downloadUri = computed(() => (
   assetId.value ? dandiRest.assetDownloadURI(props.identifier, props.version, assetId.value) : ''
 ));
+
+// Mirrors the URL choice made for external services: the direct S3 link is
+// fetchable cross-origin, but embargoed assets have to go through the API.
+const embargoed = computed(
+  () => store.dandiset?.dandiset.embargo_status === 'EMBARGOED',
+);
+const fetchUri = computed(() => {
+  const s3Url = props.item?.asset?.url;
+  return (!embargoed.value && s3Url) ? s3Url : inlineUri.value;
+});
 
 const columnCount = computed(
   () => rows.value.reduce((max, row) => Math.max(max, row.length), 0),
@@ -219,7 +232,7 @@ async function loadFile() {
   }
 
   try {
-    const { data } = await axios.get<string>(inlineUri.value, {
+    const { data } = await axios.get<string>(fetchUri.value, {
       responseType: 'text',
       // Ensure that the response isn't parsed as JSON/XML by axios.
       transformResponse: [(response) => response],
