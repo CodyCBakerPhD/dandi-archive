@@ -40,6 +40,13 @@
         </v-card>
       </v-dialog>
 
+      <TableViewerDialog
+        v-model="tableViewerOpen"
+        :item="itemToView"
+        :identifier="identifier"
+        :version="version"
+      />
+
       <v-row>
         <v-col :cols="12">
           <v-card>
@@ -151,6 +158,24 @@
                     </v-btn>
                   </v-list-item-action>
 
+                  <v-list-item-action v-if="item.asset && isTabularFile(item.path)">
+                    <v-tooltip location="top">
+                      <template #activator="{ props: tableProps }">
+                        <v-btn
+                          icon
+                          variant="text"
+                          v-bind="tableProps"
+                          @click.stop="viewAsTable(item)"
+                        >
+                          <v-icon color="primary">
+                            mdi-table
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>View as table (you can also click on the item itself)</span>
+                    </v-tooltip>
+                  </v-list-item-action>
+
                   <v-list-item-action v-if="item.asset">
                     <v-tooltip location="top">
                       <template #activator="{ props: openInBtnProps }">
@@ -165,7 +190,8 @@
                           </v-icon>
                         </v-btn>
                       </template>
-                      <span>Open asset in browser (you can also click on the item itself)</span>
+                      <span v-if="isTabularFile(item.path)">Open asset in browser</span>
+                      <span v-else>Open asset in browser (you can also click on the item itself)</span>
                     </v-tooltip>
                   </v-list-item-action>
 
@@ -290,6 +316,8 @@ import type { AssetPath } from '@/types';
 import { getExternalServices } from '@/utils/externalServices';
 import FileBrowserPagination from '@/components/FileBrowser/FileBrowserPagination.vue';
 import FileUploadInstructions from '@/components/FileBrowser/FileUploadInstructions.vue';
+import TableViewerDialog from '@/components/FileBrowser/TableViewerDialog.vue';
+import { isTabularFile } from '@/utils/tabular';
 
 const rootDirectory = '';
 const FILES_PER_PAGE = 15;
@@ -349,6 +377,10 @@ const itemToDelete: Ref<AssetPath | null> = ref(null);
 
 const deletePopupOpen = ref(false);
 
+// The tabular asset currently displayed in the table viewer
+const itemToView: Ref<AssetPath | null> = ref(null);
+const tableViewerOpen = ref(false);
+
 const page = ref(1);
 const pages = ref(0);
 const updating = ref(false);
@@ -374,12 +406,22 @@ function openItem(item: AssetPath) {
   const { asset, path } = item;
 
   if (asset) {
+    if (isTabularFile(path)) {
+      // Tabular files are rendered in a table viewer instead of being opened raw.
+      viewAsTable(item);
+      return;
+    }
     // If the item is an asset, open it in the browser.
     window.open(inlineURI(asset.asset_id), "_self");
   } else {
     // If it's a directory, move into it.
     location.value = path;
   }
+}
+
+function viewAsTable(item: AssetPath) {
+  itemToView.value = item;
+  tableViewerOpen.value = true;
 }
 
 function navigateToParent() {
