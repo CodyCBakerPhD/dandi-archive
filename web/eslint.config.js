@@ -16,7 +16,7 @@ export default [
 
   {
     name: 'app/files-to-ignore',
-    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/src/types/schema.ts'],
+    ignores: ['**/dist/**', '**/dist-ssr/**', '**/.pages-preview/**', '**/coverage/**', '**/src/types/schema.ts'],
   },
 
   ...pluginVue.configs['flat/recommended'],

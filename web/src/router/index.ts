@@ -65,6 +65,8 @@ const routes: RouteRecordRaw[] = [
 ];
 
 export default createRouter({
-  history: createWebHistory(),
+  // Resolves to "/" for a root-served deployment, or to the value of
+  // VITE_BASE_PATH when the app is built for a subpath (e.g. GitHub Pages).
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
