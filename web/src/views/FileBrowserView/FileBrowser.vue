@@ -158,14 +158,17 @@
                           icon
                           variant="text"
                           :href="inlineURI(item.asset.asset_id)"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           v-bind="openInBtnProps"
+                          @click.stop
                         >
                           <v-icon color="primary">
                             mdi-open-in-app
                           </v-icon>
                         </v-btn>
                       </template>
-                      <span>Open asset in browser (you can also click on the item itself)</span>
+                      <span>Open asset in a new tab (you can also click on the item itself)</span>
                     </v-tooltip>
                   </v-list-item-action>
 
@@ -177,6 +180,7 @@
                           variant="text"
                           :href="downloadURI(item.asset.asset_id)"
                           v-bind="downloadProps"
+                          @click.stop
                         >
                           <v-icon color="primary">
                             mdi-download
@@ -374,8 +378,8 @@ function openItem(item: AssetPath) {
   const { asset, path } = item;
 
   if (asset) {
-    // If the item is an asset, open it in the browser.
-    window.open(inlineURI(asset.asset_id), "_self");
+    // If the item is an asset, open it in a new browser tab.
+    window.open(inlineURI(asset.asset_id), '_blank', 'noopener,noreferrer');
   } else {
     // If it's a directory, move into it.
     location.value = path;
