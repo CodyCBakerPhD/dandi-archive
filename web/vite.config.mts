@@ -39,6 +39,9 @@ process.env.VITE_APP_GIT_REVISION = getGitRevision();
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Netlify serves the app from the domain root, but GitHub Pages serves project
+  // sites from "/<repo>/", so the base path must be overridable at build time.
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [
     VueRouter(),
     Vue({
