@@ -125,6 +125,36 @@ To include a memory profile with your tests, add `--memray` at the end of your t
 This repository now also contains sources for the web interface under [web/](./web/) folder.
 If you would like to develop it locally, please see [web/README.md](./web/README.md) file for instructions.
 
+### Previewing the web interface on GitHub Pages
+
+The canonical deployment of the web interface is Netlify (see [web/netlify.toml](./web/netlify.toml)).
+A fork can additionally publish a static preview of frontend changes to GitHub Pages, which is
+useful for sharing a UI change without a Netlify account. Only the frontend is published: GitHub
+Pages serves static files, so the preview talks to the already-deployed sandbox API rather than to
+a locally running backend.
+
+The [`pages.yml`](./.github/workflows/pages.yml) workflow builds `web/` and deploys it on every
+push to `master`, publishing at `https://<user>.github.io/<repo>/`. It enables Pages on the fork
+itself on its first run, so no manual repository configuration is needed. Because a Pages site has
+a single deployment, feature branches are not published automatically; to preview one, run the
+workflow from that branch via the Actions tab. The workflow does not run on `dandi/dandi-archive`.
+
+Because Pages serves a project site from a subpath and has no SPA rewrite rule, the deployed site
+differs from `npm run dev` in ways worth checking before pushing. To reproduce it locally:
+
+```
+./scripts/pages_preview.py
+```
+
+This builds the app with the appropriate base path, adds the `404.html` fallback that lets
+`vue-router` resolve deep links, and serves the result at http://localhost:8080/dandi-archive/.
+Pass `--base` if your fork is named something other than `dandi-archive`, and `--no-build` to
+re-serve an existing build. The API the preview uses can be overridden by exporting
+`VITE_APP_DANDI_API_ROOT` (and the other `VITE_APP_*` variables) before running it.
+
+Note that logging in will not work from a Pages origin, since that origin is not a registered OAuth
+redirect URI for the sandbox deployment; the preview is for anonymous browsing of the UI.
+
 ## API Authentication
 Read-only API endpoints (i.e. `GET`, `HEAD`) do not require any
 authentication. All other endpoints require token authentication
