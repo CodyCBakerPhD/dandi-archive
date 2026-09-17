@@ -133,11 +133,20 @@ useful for sharing a UI change without a Netlify account. Only the frontend is p
 Pages serves static files, so the preview talks to the already-deployed sandbox API rather than to
 a locally running backend.
 
-The [`pages.yml`](./.github/workflows/pages.yml) workflow builds `web/` and deploys it on every
-push to `master`, publishing at `https://<user>.github.io/<repo>/`. It enables Pages on the fork
-itself on its first run, so no manual repository configuration is needed. Because a Pages site has
+To enable it on a fork, set Settings → Pages → Source to "GitHub Actions". This step cannot be
+automated: the workflow's token may deploy to an existing Pages site, but creating one requires
+admin rights it does not have. Note that this source deploys the built files directly from the
+workflow; unlike the older branch-based approach, no `gh-pages` branch is created.
+
+The [`pages.yml`](./.github/workflows/pages.yml) workflow then builds `web/` and deploys it on
+every push to `master`, publishing at `https://<user>.github.io/<repo>/`. Because a Pages site has
 a single deployment, feature branches are not published automatically; to preview one, run the
 workflow from that branch via the Actions tab. The workflow does not run on `dandi/dandi-archive`.
+
+Dispatching from a non-default branch may be refused by the `github-pages` environment, whose
+deployment branch policy GitHub restricts to the default branch ("Branch is not allowed to deploy
+to github-pages due to environment protection rules"). Allow the branch under Settings →
+Environments → github-pages if you hit that.
 
 Because Pages serves a project site from a subpath and has no SPA rewrite rule, the deployed site
 differs from `npm run dev` in ways worth checking before pushing. To reproduce it locally:

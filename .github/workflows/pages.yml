@@ -63,11 +63,12 @@ jobs:
         # copy of index.html there lets vue-router resolve the route client-side.
         run: cp web/dist/index.html web/dist/404.html
 
+      # This step requires that Pages already be enabled on the repository with
+      # "GitHub Actions" as its source. It cannot enable Pages itself: the
+      # workflow token may deploy to an existing site, but creating one needs
+      # admin rights it does not have, and `enablement: true` fails with
+      # "Create Pages site failed. Error: Resource not accessible by integration".
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
-        with:
-          # Create the Pages site on first run, so enabling the preview on a fork
-          # requires no manual repository configuration.
-          enablement: true
 
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
