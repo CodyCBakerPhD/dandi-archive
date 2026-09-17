@@ -1,0 +1,64 @@
+name: PR preview
+on:
+  pull_request:
+    # "closed" is included so the action can delete the preview when the PR ends.
+    types: [opened, synchronize, reopened, closed]
+
+# One deployment per PR at a time; a newer push supersedes an in-flight one.
+concurrency: preview-${{ github.ref }}
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    name: Build and publish PR preview
+    # Fork-only. The canonical deployment is Netlify (see web/netlify.toml), which
+    # already publishes deploy previews upstream.
+    if: github.repository != 'dandi/dandi-archive'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # the action commits the build to the gh-pages branch
+      pull-requests: write # ...and posts the preview link as a comment
+    env:
+      # Each PR is served from its own subdirectory, so the base path is
+      # per-PR rather than the repository root.
+      VITE_BASE_PATH: /${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.number }}/
+      # The preview is static: it talks to the already-deployed sandbox API,
+      # matching the "deploy-preview" context in web/netlify.toml.
+      VITE_APP_DANDI_API_ROOT: https://api.sandbox.dandiarchive.org/api/
+      VITE_APP_OAUTH_API_ROOT: https://api.sandbox.dandiarchive.org/oauth/
+      VITE_APP_OAUTH_CLIENT_ID: Dk0zosgt1GAAKfN8LT4STJmLJXwMDPbYWYzfNtAl
+      VITE_APP_DOI_SERVER: https://api.test.datacite.org/
+      VITE_APP_SENTRY_ENVIRONMENT: preview
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the build derives a version string from `git describe`
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: github.event.action != 'closed'
+        with:
+          node-version: 24.x
+
+      - name: Install Vue app
+        if: github.event.action != 'closed'
+        run: npm ci
+        working-directory: web
+
+      - name: Build Vue app
+        if: github.event.action != 'closed'
+        run: npm run build
+        working-directory: web
+
+      - name: Add SPA fallback
+        if: github.event.action != 'closed'
+        # Pages has no rewrite rule, so deep links are served the 404 page;
+        # serving a copy of index.html there lets vue-router resolve the route.
+        run: cp web/dist/index.html web/dist/404.html
+
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@9f77b1d057b494e662c50b8ca40ecc63f21e0887 # v1.6.2
+        with:
+          source-dir: web/dist
+          preview-branch: gh-pages

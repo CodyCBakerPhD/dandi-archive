@@ -125,50 +125,6 @@ To include a memory profile with your tests, add `--memray` at the end of your t
 This repository now also contains sources for the web interface under [web/](./web/) folder.
 If you would like to develop it locally, please see [web/README.md](./web/README.md) file for instructions.
 
-### Previewing the web interface on GitHub Pages
-
-The canonical deployment of the web interface is Netlify (see [web/netlify.toml](./web/netlify.toml)).
-A fork can additionally publish a static preview of frontend changes to GitHub Pages, which is
-useful for sharing a UI change without a Netlify account. Only the frontend is published: GitHub
-Pages serves static files, so the preview talks to the already-deployed sandbox API rather than to
-a locally running backend.
-
-To enable it on a fork, set Settings → Pages → Source to "GitHub Actions". This step cannot be
-automated: the workflow's token may deploy to an existing Pages site, but creating one requires
-admin rights it does not have. Note that this source deploys the built files directly from the
-workflow; unlike the older branch-based approach, no `gh-pages` branch is created.
-
-This preview lives on the `master-preview` branch, not on `master`: `master` is kept identical to
-`dandi/dandi-archive`, so that contributions upstream can be branched from it without carrying the
-preview commits. `master-preview` is the fork's default branch, which is also what the
-`github-pages` environment requires in order to deploy.
-
-The [`pages.yml`](./.github/workflows/pages.yml) workflow then builds `web/` and deploys it on
-every push to `master-preview`, publishing at `https://<user>.github.io/<repo>/`. Because a Pages site has
-a single deployment, feature branches are not published automatically; to preview one, run the
-workflow from that branch via the Actions tab. The workflow does not run on `dandi/dandi-archive`.
-
-Dispatching from a non-default branch may be refused by the `github-pages` environment, whose
-deployment branch policy GitHub restricts to the default branch ("Branch is not allowed to deploy
-to github-pages due to environment protection rules"). Allow the branch under Settings →
-Environments → github-pages if you hit that.
-
-Because Pages serves a project site from a subpath and has no SPA rewrite rule, the deployed site
-differs from `npm run dev` in ways worth checking before pushing. To reproduce it locally:
-
-```
-./scripts/pages_preview.py
-```
-
-This builds the app with the appropriate base path, adds the `404.html` fallback that lets
-`vue-router` resolve deep links, and serves the result at http://localhost:8080/dandi-archive/.
-Pass `--base` if your fork is named something other than `dandi-archive`, and `--no-build` to
-re-serve an existing build. The API the preview uses can be overridden by exporting
-`VITE_APP_DANDI_API_ROOT` (and the other `VITE_APP_*` variables) before running it.
-
-Note that logging in will not work from a Pages origin, since that origin is not a registered OAuth
-redirect URI for the sandbox deployment; the preview is for anonymous browsing of the UI.
-
 ## API Authentication
 Read-only API endpoints (i.e. `GET`, `HEAD`) do not require any
 authentication. All other endpoints require token authentication
