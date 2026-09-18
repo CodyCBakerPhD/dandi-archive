@@ -41,10 +41,11 @@
       </v-dialog>
 
       <TableViewerDialog
-        v-model="tableViewerOpen"
+        :model-value="tableViewerOpen"
         :item="itemToView"
         :identifier="identifier"
         :version="version"
+        @update:model-value="$event ? undefined : closeTableViewer()"
       />
 
       <v-row>
@@ -321,6 +322,15 @@ import { isTabularFile } from '@/utils/tabular';
 
 const rootDirectory = '';
 const FILES_PER_PAGE = 15;
+// Query parameter holding the path of the asset open in the table viewer.
+const TABLE_QUERY_PARAM = 'table';
+
+function firstQueryValue(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0] ?? undefined;
+  }
+  return typeof value === 'string' ? value : undefined;
+}
 
 // AssetService is slightly different from Service
 interface AssetService {
@@ -419,9 +429,36 @@ function openItem(item: AssetPath) {
   }
 }
 
+// Record the open table in the URL, so that the link can be shared and comes
+// back with the viewer already open. The route watcher does the opening.
 function viewAsTable(item: AssetPath) {
-  itemToView.value = item;
-  tableViewerOpen.value = true;
+  router.replace({
+    ...route,
+    query: { ...route.query, [TABLE_QUERY_PARAM]: item.path },
+  } as RouteLocationRaw);
+}
+
+function closeTableViewer() {
+  const query = { ...route.query };
+  delete query[TABLE_QUERY_PARAM];
+  router.replace({ ...route, query } as RouteLocationRaw);
+}
+
+// Open (or close) the viewer to match the current URL.
+function syncTableViewerWithRoute() {
+  const target = firstQueryValue(route.query[TABLE_QUERY_PARAM]);
+  const match = target
+    ? items.value?.find(
+      (item) => item.path === target && item.asset && isTabularFile(item.path),
+    )
+    : undefined;
+
+  if (match) {
+    itemToView.value = match;
+    tableViewerOpen.value = true;
+  } else {
+    tableViewerOpen.value = false;
+  }
 }
 
 function navigateToParent() {
@@ -460,6 +497,7 @@ async function getItems() {
     if (axios.isAxiosError(e) && e.response?.status === 404) {
       items.value = [];
       updating.value = false;
+      syncTableViewerWithRoute();
       return;
     }
     throw e;
@@ -486,6 +524,9 @@ async function getItems() {
   // Assign values
   items.value = extendedItems;
   updating.value = false;
+
+  // The viewer can only be opened once the item it refers to has been loaded.
+  syncTableViewerWithRoute();
 }
 
 function setItemToDelete(item: AssetPath) {
@@ -526,16 +567,22 @@ watch(location, () => {
   } as RouteLocationRaw);
 });
 
+// The listing last requested, so that query changes which don't affect it
+// (opening or closing the table viewer) don't trigger a refetch.
+let fetchedListing: string | null = null;
+
 // go to the directory specified in the URL if it changes
 watch(() => route.query, (newRouteQuery) => {
-  location.value = (
-    Array.isArray(newRouteQuery.location)
-      ? newRouteQuery.location[0]
-      : newRouteQuery.location
-  ) || rootDirectory;
+  location.value = firstQueryValue(newRouteQuery.location) || rootDirectory;
 
-  // Retrieve with new location
-  getItems();
+  const listing = `${location.value}?page=${Number(newRouteQuery.page) || page.value}`;
+  if (listing !== fetchedListing) {
+    fetchedListing = listing;
+    // Retrieve with new location
+    getItems();
+  } else {
+    syncTableViewerWithRoute();
+  }
 }, { immediate: true });
 
 function changePage(newPage: number) {

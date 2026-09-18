@@ -17,22 +17,23 @@
           :title="item.path"
         >{{ name }}</span>
         <v-spacer />
-        <v-tooltip location="bottom">
+        <v-tooltip
+          v-if="rawText"
+          location="bottom"
+        >
           <template #activator="{ props: rawProps }">
             <v-btn
               icon
               variant="text"
-              :href="inlineUri"
-              target="_blank"
-              rel="noreferrer"
               v-bind="rawProps"
+              @click="showRaw = !showRaw"
             >
               <v-icon color="primary">
-                mdi-file-document-outline
+                {{ showRaw ? 'mdi-table' : 'mdi-file-document-outline' }}
               </v-icon>
             </v-btn>
           </template>
-          <span>View raw file</span>
+          <span>{{ showRaw ? 'View as table' : 'View raw text' }}</span>
         </v-tooltip>
         <v-tooltip location="bottom">
           <template #activator="{ props: downloadProps }">
@@ -74,6 +75,11 @@
           {{ error }}
         </v-alert>
 
+        <pre
+          v-else-if="!loading && showRaw"
+          class="raw-text"
+        >{{ rawText }}</pre>
+
         <template v-else-if="!loading">
           <v-alert
             v-if="truncated"
@@ -97,13 +103,6 @@
               clearable
               style="max-width: 20em;"
             />
-            <v-checkbox
-              v-model="firstRowIsHeader"
-              label="First row is a header"
-              density="compact"
-              hide-details
-              class="ml-4 flex-grow-0"
-            />
             <v-spacer />
             <span class="text-caption text-medium-emphasis">
               {{ dataRows.length }} rows &times; {{ columnCount }} columns
@@ -119,7 +118,23 @@
             density="compact"
             class="table-viewer"
             fixed-header
-          />
+          >
+            <template
+              v-for="header in headers"
+              #[`item.${header.key}`]="{ value }"
+            >
+              <a
+                v-if="isUrl(value)"
+                :key="header.key"
+                :href="value"
+                target="_blank"
+                rel="noopener noreferrer"
+              >{{ value }}</a>
+              <template v-else>
+                {{ value }}
+              </template>
+            </template>
+          </v-data-table>
           <v-banner v-else>
             This file is empty.
           </v-banner>
@@ -138,7 +153,7 @@ import type { AssetPath } from '@/types';
 import { dandiRest } from '@/rest';
 import { useDandisetStore } from '@/stores/dandiset';
 import type { Delimiter } from '@/utils/tabular';
-import { parseDelimitedText, tabularDelimiter } from '@/utils/tabular';
+import { isUrl, parseDelimitedText, tabularDelimiter } from '@/utils/tabular';
 
 // Guardrails, so that a pathologically large file can't lock up the browser.
 const MAX_FILE_SIZE = 50e6;
@@ -165,7 +180,10 @@ const error: Ref<string | null> = ref(null);
 const rows: Ref<string[][]> = ref([]);
 const truncated = ref(false);
 const search = ref('');
-const firstRowIsHeader = ref(true);
+// The file's text as fetched, shown by the raw-text toggle. The row cap below
+// applies to the table only, so this stays the complete contents.
+const rawText = ref('');
+const showRaw = ref(false);
 
 const name = computed(() => props.item?.path.split('/').pop() || '');
 const assetId = computed(() => props.item?.asset?.asset_id || null);
@@ -189,11 +207,10 @@ const fetchUri = computed(() => {
 const columnCount = computed(
   () => rows.value.reduce((max, row) => Math.max(max, row.length), 0),
 );
-const dataRows = computed(() => (
-  firstRowIsHeader.value ? rows.value.slice(1) : rows.value
-));
+// The first row is always treated as the header row.
+const dataRows = computed(() => rows.value.slice(1));
 const headers = computed(() => {
-  const headerRow = firstRowIsHeader.value ? rows.value[0] || [] : [];
+  const headerRow = rows.value[0] || [];
   return Array.from({ length: columnCount.value }, (_, i) => ({
     title: headerRow[i] || `Column ${i + 1}`,
     key: `c${i}`,
@@ -222,7 +239,8 @@ async function loadFile() {
   rows.value = [];
   truncated.value = false;
   search.value = '';
-  firstRowIsHeader.value = true;
+  rawText.value = '';
+  showRaw.value = false;
 
   if (item.aggregate_size > MAX_FILE_SIZE) {
     error.value = 'This file is too large to preview in the browser.'
@@ -237,11 +255,12 @@ async function loadFile() {
       // Ensure that the response isn't parsed as JSON/XML by axios.
       transformResponse: [(response) => response],
     });
+    rawText.value = data;
     const parsed = parseDelimitedText(data, delimiter);
     truncated.value = parsed.length > MAX_ROWS;
     rows.value = truncated.value ? parsed.slice(0, MAX_ROWS) : parsed;
   } catch {
-    error.value = 'Failed to load this file. You can still download it or view it raw.';
+    error.value = 'Failed to load this file. You can still download it.';
   } finally {
     loading.value = false;
   }
@@ -257,5 +276,12 @@ watch(() => [props.modelValue, props.item], () => {
 <style scoped>
 .table-viewer :deep(td) {
   white-space: nowrap;
+}
+
+.raw-text {
+  font-family: monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  white-space: pre;
 }
 </style>

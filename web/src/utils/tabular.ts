@@ -27,6 +27,24 @@ export function isTabularFile(path: string): boolean {
 }
 
 /**
+ * Whether a cell value is a URL that should be rendered as a link.
+ *
+ * Deliberately limited to http(s) so that cell contents can't produce
+ * `javascript:` or `data:` links.
+ */
+export function isUrl(value: unknown): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  try {
+    const { protocol } = new URL(value.trim());
+    return protocol === 'http:' || protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Parse delimited text into a matrix of cells.
  *
  * Supports RFC 4180 style quoting, i.e. fields wrapped in double quotes may
