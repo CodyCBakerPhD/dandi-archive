@@ -338,6 +338,7 @@ const cookiesEnabled = (): boolean => navigator.cookieEnabled;
 
 export {
   client,
+  dandiApiRoot,
   dandiRest,
   loggedIn,
   user,

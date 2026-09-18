@@ -193,6 +193,7 @@ import { useInstanceStore } from '@/stores/instance';
 import { useZipDownload, type ZipEntry } from '@/composables/useZipDownload';
 import CopyText from '@/components/CopyText.vue';
 import { dandiDocumentationUrl } from '@/utils/constants';
+import { dandisetDownloadCommand } from '@/utils/cliUrls';
 import { dandiRest } from '@/rest';
 import type { Asset } from '@/types';
 
@@ -209,16 +210,10 @@ const BROWSER_ZIP_MAX_FILES = 1000;
 type AssetWithStorage = Asset & { zarr: string | null; blob: string | null };
 
 function downloadCommand(identifier: string, version: string): string {
-  // Use the special 'DANDI:' url prefix if the dandiset lives on the production
-  // instance, since that is the instance the CLI resolves those IDs against.
-  const generalUrl = `${window.location.origin}/dandiset/${identifier}`;
-  const dandiUrl = `DANDI:${identifier}`;
-  const url = instanceStore.isProduction ? dandiUrl : generalUrl;
-
-  // Prepare a url suffix to specify a specific version (or not).
-  const versionPath = version ? `/${version}` : '';
-
-  return `dandi download ${url}${versionPath}`;
+  return dandisetDownloadCommand(identifier, version, {
+    isProduction: instanceStore.isProduction,
+    instanceUrl: instanceStore.instanceUrl,
+  });
 }
 
 const store = useDandisetStore();

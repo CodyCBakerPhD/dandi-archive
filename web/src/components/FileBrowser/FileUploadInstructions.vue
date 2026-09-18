@@ -52,6 +52,7 @@ import { computed } from 'vue';
 import { useDandisetStore } from '@/stores/dandiset';
 import { useInstanceStore } from '@/stores/instance';
 import { dandiDocumentationUrl } from '@/utils/constants';
+import { dandisetDownloadCommand } from '@/utils/cliUrls';
 
 const store = useDandisetStore();
 const dandisetIdentifier = computed(() => store.dandiset?.dandiset.identifier);
@@ -64,7 +65,11 @@ if (dandisetIdentifier.value === undefined) {
   throw new Error('store.dandiset must be defined');
 }
 
-const downloadCommand = computed(() => {
-  return `dandi download ${window.location.origin}/dandiset/${dandisetIdentifier.value}/draft`
-});
+const downloadCommand = computed(() => (dandisetIdentifier.value
+  ? dandisetDownloadCommand(
+    dandisetIdentifier.value,
+    'draft',
+    { isProduction: instanceStore.isProduction, instanceUrl: instanceStore.instanceUrl },
+  )
+  : ''));
 </script>
