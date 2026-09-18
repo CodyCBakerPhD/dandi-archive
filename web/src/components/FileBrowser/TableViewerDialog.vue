@@ -66,7 +66,7 @@
         indeterminate
       />
 
-      <v-card-text style="max-height: 70vh;">
+      <v-card-text class="viewer-body">
         <v-alert
           v-if="error"
           type="error"
@@ -274,14 +274,32 @@ watch(() => [props.modelValue, props.item], () => {
 </script>
 
 <style scoped>
+.viewer-body {
+  max-height: 70vh;
+  /* The scrollable regions below are sized to fit, so the body itself doesn't
+     scroll: that keeps their horizontal scrollbars on screen. */
+  overflow: hidden;
+}
+
 .table-viewer :deep(td) {
   white-space: nowrap;
+}
+
+/* Scroll the table body rather than the dialog, so that the horizontal
+   scrollbar stays pinned to the bottom of the visible rows instead of sitting
+   below the last row, out of view. The subtracted space covers the search row
+   and the table footer. */
+.table-viewer :deep(.v-table__wrapper) {
+  max-height: calc(70vh - 160px);
+  overflow: auto;
 }
 
 .raw-text {
   font-family: monospace;
   font-size: 0.85rem;
-  overflow-x: auto;
+  /* Same reasoning as the table wrapper above. */
+  max-height: calc(70vh - 48px);
+  overflow: auto;
   white-space: pre;
 }
 </style>
