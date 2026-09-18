@@ -21,6 +21,9 @@ export const useInstanceStore = defineStore('instance', {
   }),
   getters: {
     instanceName: (state) => state.info?.instance_config.instance_name,
+    // The web URL the instance reports for itself, which is not necessarily the
+    // origin serving this page (e.g. a static preview build).
+    instanceUrl: (state) => state.info?.instance_config.instance_url ?? null,
     // Until /api/info/ has been fetched successfully, the instance is not considered
     // production or sandbox, so features gated on these getters fail closed.
     isProduction(): boolean {
