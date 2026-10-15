@@ -1,3 +1,209 @@
+# v1.0.19 (Wed Oct 14 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate)), for all your work!
+
+#### 🐛 Bug Fix
+
+- Do not bump draft `modified` when assetsSummary is unchanged [#2950](https://github.com/dandi/dandi-archive/pull/2950) ([@claude](https://github.com/claude) [@jjnesbitt](https://github.com/jjnesbitt) [@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Add table visualizer for .tsv assets [#2928](https://github.com/dandi/dandi-archive/pull/2928) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Begin collecting internal knowledge through skills (Vuetify'ing components) [#2929](https://github.com/dandi/dandi-archive/pull/2929) ([@claude](https://github.com/claude) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🧪 Tests
+
+- Skip test workflows for changes only to doc/ [#2938](https://github.com/dandi/dandi-archive/pull/2938) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 5
+
+- Claude ([@claude](https://github.com/claude))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Jacob Nesbitt ([@jjnesbitt](https://github.com/jjnesbitt))
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.18 (Tue Oct 06 2026)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+
+:heart: Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🐛 Bug Fix
+
+- Use correct environment variable to configure Sentry [#2967](https://github.com/dandi/dandi-archive/pull/2967) ([@waxlamp](https://github.com/waxlamp))
+- Run local MinIO from `bitnamilegacy/minio`; Quay now requires a login [#2940](https://github.com/dandi/dandi-archive/pull/2940) ([@claude](https://github.com/claude) [@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Stable default order for asset listings; allow `?order=...,id` [#2945](https://github.com/dandi/dandi-archive/pull/2945) ([@claude](https://github.com/claude) [@yarikoptic](https://github.com/yarikoptic) [@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Account for AWS GiB billing in S3 backup cost estimates [#2935](https://github.com/dandi/dandi-archive/pull/2935) ([@claude](https://github.com/claude) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### Authors: 5
+
+- Claude ([@claude](https://github.com/claude))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Roni Choudhury ([@waxlamp](https://github.com/waxlamp))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
+# v1.0.17 (Sun Oct 04 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate)), for all your work!
+
+#### 🐛 Bug Fix
+
+- Keep the Region out of unsigned S3 URLs [#2963](https://github.com/dandi/dandi-archive/pull/2963) ([@claude](https://github.com/claude) [@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+
+#### Authors: 2
+
+- Claude ([@claude](https://github.com/claude))
+- GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+
+---
+
+# v1.0.16 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Increase unembargo_dandiset_task soft time limit to 1 hour [#2960](https://github.com/dandi/dandi-archive/pull/2960) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.15 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Increase `write_manifest_files` soft time limit to 360s [#2948](https://github.com/dandi/dandi-archive/pull/2948) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.14 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Revert "Temporarily disable write_manifest_files task" [#2958](https://github.com/dandi/dandi-archive/pull/2958) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.13 (Thu Oct 01 2026)
+
+#### 🐛 Bug Fix
+
+- Empty commit to trigger a release [#2955](https://github.com/dandi/dandi-archive/pull/2955) ([@mvandenburgh](https://github.com/mvandenburgh))
+- Fix type of celery function arg [#2956](https://github.com/dandi/dandi-archive/pull/2956) ([@mvandenburgh](https://github.com/mvandenburgh))
+- Add `expires` for beat tasks [#2954](https://github.com/dandi/dandi-archive/pull/2954) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.12 (Thu Oct 01 2026)
+
+#### 🐛 Bug Fix
+
+- Temporarily disable write_manifest_files task [#2953](https://github.com/dandi/dandi-archive/pull/2953) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.11 (Thu Oct 01 2026)
+
+#### 🐛 Bug Fix
+
+- Avoid presigning URLs when computing asset S3 URLs [#2951](https://github.com/dandi/dandi-archive/pull/2951) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.10 (Wed Sep 30 2026)
+
+#### 🐛 Bug Fix
+
+- Disable scheduled materialized view refresh [#2949](https://github.com/dandi/dandi-archive/pull/2949) ([@mvandenburgh](https://github.com/mvandenburgh))
+
+#### Authors: 1
+
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+
+---
+
+# v1.0.9 (Wed Sep 30 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate)), for all your work!
+
+#### 🐛 Bug Fix
+
+- Increase aggregate_assets_summary_task soft time limit to 5 minutes [#2947](https://github.com/dandi/dandi-archive/pull/2947) ([@mvandenburgh](https://github.com/mvandenburgh))
+- Hide form control buttons for read-only user [#2941](https://github.com/dandi/dandi-archive/pull/2941) ([@naglepuff](https://github.com/naglepuff))
+- Add a variable: search operator over assetsSummary.variableMeasured [#2885](https://github.com/dandi/dandi-archive/pull/2885) ([@bendichter](https://github.com/bendichter))
+- Add standard: search operator; remove file_type: [#2884](https://github.com/dandi/dandi-archive/pull/2884) ([@bendichter](https://github.com/bendichter))
+- fix: pull MinIO from Quay in the dev stack [#2922](https://github.com/dandi/dandi-archive/pull/2922) (yaroslav.o.halchenko@dartmouth.edu [@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+
+#### Authors: 5
+
+- Ben Dichter ([@bendichter](https://github.com/bendichter))
+- GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Michael Nagler ([@naglepuff](https://github.com/naglepuff))
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+- Yaroslav Halchenko (yaroslav.o.halchenko@dartmouth.edu)
+
+---
+
+# v1.0.8 (Fri Sep 18 2026)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+:heart: GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+
+#### 🐛 Bug Fix
+
+- Make file browser rows real links [#2926](https://github.com/dandi/dandi-archive/pull/2926) ([@claude](https://github.com/claude) [@mvandenburgh](https://github.com/mvandenburgh) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fix publish-time race between DOI minting and manifest writing [#2912](https://github.com/dandi/dandi-archive/pull/2912) ([@yarikoptic](https://github.com/yarikoptic) [@claude](https://github.com/claude) [@jjnesbitt](https://github.com/jjnesbitt) [@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+
+#### Authors: 6
+
+- Claude ([@claude](https://github.com/claude))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- GitMate for @yarikoptic ([@yarikoptic-gitmate](https://github.com/yarikoptic-gitmate))
+- Jacob Nesbitt ([@jjnesbitt](https://github.com/jjnesbitt))
+- Mike VanDenburgh ([@mvandenburgh](https://github.com/mvandenburgh))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v1.0.7 (Thu Sep 17 2026)
 
 #### 🐛 Bug Fix
